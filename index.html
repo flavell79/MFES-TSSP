@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MFES Training Site Safety Plan</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Leaflet CSS & JS for Interactive Map (Using Cloudflare CDN for reliability) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -25,7 +31,6 @@
 
             .container-shadow { box-shadow: none !important; border: none !important; }
             
-            /* Allow sections to break gracefully, but keep inner items intact */
             section { 
                 break-inside: auto !important; 
                 page-break-inside: auto !important;
@@ -34,13 +39,12 @@
                 border-radius: 0.75rem !important; 
             }
 
-            /* Prevent individual grid cards/boxes from splitting in half */
             .grid > div, .bg-red-50, .bg-slate-50, .p-4 {
                 break-inside: avoid !important;
                 page-break-inside: avoid !important;
             }
             
-            h2 { break-after: avoid; } /* Keep section titles with their content */
+            h2 { break-after: avoid; }
             
             textarea, input { 
                 border: none !important; 
@@ -48,20 +52,29 @@
                 background: transparent !important; 
             }
             
-            /* Enforce exact background colors for print */
             .bg-sky-800 { background-color: #075985 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .bg-slate-800 { background-color: #1e293b !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .bg-red-700 { background-color: #b91c1c !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .bg-sky-50 { background-color: #f0f9ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            .leaflet-control-container { display: none !important; }
         }
 
         textarea::-webkit-scrollbar { width: 4px; }
         textarea::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Auto-resize textareas */
         textarea {
             resize: none;
             overflow: hidden;
+        }
+
+        .custom-text-icon {
+            background: transparent;
+            border: none;
+        }
+        
+        #mapContainer {
+            z-index: 10;
         }
     </style>
 </head>
@@ -69,7 +82,6 @@
 
     <div id="app" class="max-w-5xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden print:overflow-visible border border-slate-200 container-shadow print:shadow-none print:border-none">
         
-        <!-- Header Section -->
         <header class="bg-sky-800 text-white p-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-4">
@@ -95,7 +107,6 @@
 
         <div class="p-6 md:p-8 space-y-8">
             
-            <!-- Add-Ons Selection -->
             <div class="bg-sky-50 border border-sky-100 rounded-xl p-4 shadow-sm flex flex-col md:flex-row print:flex-row items-start md:items-center print:items-center gap-4">
                 <span class="text-xs font-black uppercase tracking-widest text-sky-800 flex items-center gap-2">
                     <i data-lucide="blocks" class="w-4 h-4"></i> Add-Ons:
@@ -124,7 +135,6 @@
                 </div>
             </div>
 
-            <!-- 1. Administrative Details -->
             <section class="space-y-6 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                 <h2 class="text-sm font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-100">
                     <i data-lucide="file-text" class="w-5 h-5 text-sky-600"></i> 1. Administrative Details
@@ -177,7 +187,6 @@
                 </div>
             </section>
 
-            <!-- 2. Site Sketch & Control Zones -->
             <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                 <div class="flex justify-between items-center border-b pb-3 border-slate-50">
                     <h2 class="text-sm font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest">
@@ -188,9 +197,9 @@
                 <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-xs text-slate-600 mb-4 print:hidden">
                     <p class="font-bold mb-1 text-slate-800 text-sm">Instructions for Site Maps:</p>
                     <ul class="list-disc pl-4 space-y-1">
-                        <li>Click <strong>"Load Address on Map"</strong> to load your Section 1 location directly into the frame below.</li>
+                        <li>Click <strong>"Load Address on Map"</strong> to load your Section 1 location dynamically.</li>
                         <li>Ensure you are in <strong>"Pan & Zoom Map"</strong> mode to interact with the map and adjust your view.</li>
-                        <li>Switch to <strong>"Draw"</strong> or <strong>"Text"</strong> mode to lock the view. Use the color pens to explicitly draw boundaries and type text labels for: <strong>Hot / Warm / Cold Zones, First Aid & Rehab, and Staging locations.</strong></li>
+                        <li>Switch to <strong>"Draw"</strong> or <strong>"Text"</strong> mode to lock the view. Your markups are anchored to GPS coordinates and will adjust when you pan and zoom!</li>
                     </ul>
                 </div>
 
@@ -202,11 +211,6 @@
                     <button onclick="loadMapFromLocation()" type="button" class="flex items-center gap-1.5 px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors border border-blue-200 shadow-sm">
                         <i data-lucide="map-pin" class="w-4 h-4"></i> Use My GPS
                     </button>
-                    
-                    <label class="flex items-center gap-1.5 px-3 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-bold transition-colors border border-slate-300 shadow-sm cursor-pointer">
-                        <i data-lucide="image-plus" class="w-4 h-4"></i> Upload Map Image
-                        <input type="file" id="mapUpload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                    </label>
 
                     <div class="h-8 w-px bg-slate-200 mx-2"></div>
 
@@ -232,7 +236,7 @@
                         <button onclick="setDrawColor('#eab308')" class="w-6 h-6 rounded-full bg-yellow-500 border-2 border-white ring-2 ring-transparent transition-all color-btn opacity-50 cursor-not-allowed" title="Warm Zone (Yellow)" disabled></button>
                         <button onclick="setDrawColor('#22c55e')" class="w-6 h-6 rounded-full bg-green-500 border-2 border-white ring-2 ring-transparent transition-all color-btn opacity-50 cursor-not-allowed" title="Cold/Staging (Green)" disabled></button>
                         <button onclick="setDrawColor('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 border-2 border-white ring-2 ring-transparent transition-all color-btn opacity-50 cursor-not-allowed" title="Rehab/Water (Blue)" disabled></button>
-                        <button onclick="setDrawColor('#0f172a')" class="w-6 h-6 rounded-full bg-slate-900 border-2 border-white ring-2 ring-slate-900 transition-all color-btn active-color opacity-50 cursor-not-allowed" title="Black Pen" disabled></button>
+                        <button onclick="setDrawColor('#ffffff')" class="w-6 h-6 rounded-full bg-white border-2 border-slate-200 ring-2 ring-slate-900 transition-all color-btn active-color opacity-50 cursor-not-allowed" title="White Pen" disabled></button>
                     </div>
 
                     <div class="flex-1"></div>
@@ -246,16 +250,12 @@
                     </button>
                 </div>
 
-                <div class="relative border-2 border-slate-300 rounded-xl overflow-hidden bg-slate-100 shadow-inner h-[700px]">
-                    <!-- Base Layer: Interactive Iframe Map -->
-                    <iframe id="mapFrame" class="absolute inset-0 w-full h-full z-0 pointer-events-auto" src="about:blank" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
-
-                    <!-- Overlay Layer: Transparent Canvas for drawing -->
-                    <canvas id="sketchCanvas" class="absolute inset-0 w-full h-full z-10 touch-none pointer-events-none"></canvas>
+                <!-- Leaflet Map Container -->
+                <div class="relative border-2 border-slate-300 rounded-xl overflow-hidden bg-slate-100 shadow-inner h-[700px] z-10">
+                    <div id="mapContainer" class="absolute inset-0 w-full h-full z-10 cursor-grab"></div>
                 </div>
             </section>
 
-            <!-- 3. Emergency Action Plan (EAP) -->
             <section class="space-y-6 border border-red-100 rounded-xl p-6 bg-white shadow-sm overflow-hidden">
                 <h2 class="text-sm font-black text-red-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-red-50">
                     <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i> 3. Emergency Action Plan (EAP)
@@ -291,7 +291,6 @@
                 </div>
             </section>
 
-            <!-- Checklists -->
             <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
                 <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                     <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
@@ -312,7 +311,6 @@
                 </section>
             </div>
 
-            <!-- 6. Post-Training Debrief -->
             <section class="space-y-6 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                 <h2 class="text-sm font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                     <i data-lucide="check-square" class="w-5 h-5 text-sky-600"></i> 6. Post-Training & Sign-Off
@@ -375,7 +373,6 @@
                     <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight text-orange-600">Add-On: Live Fire</h1>
                 </div>
 
-                <!-- Structure Type Details -->
                 <section class="flex flex-wrap gap-6 border border-slate-100 rounded-xl p-6 bg-slate-50/50 shadow-sm">
                     <label class="flex items-center gap-2 cursor-pointer group">
                         <input type="checkbox" id="lfTypePurposeBuilt" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
@@ -387,7 +384,6 @@
                     </label>
                 </section>
 
-                <!-- 1. Site-Specific Hazard Assessment -->
                 <section class="space-y-6 border border-red-100 rounded-xl p-6 bg-white shadow-sm">
                     <h2 class="text-sm font-black text-red-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-red-50">
                         <i data-lucide="octagon-alert" class="w-5 h-5 text-red-600"></i> 1. SITE-SPECIFIC HAZARDS & "NO-GO" TRIGGERS
@@ -399,19 +395,16 @@
                             <p class="text-xs text-red-800 leading-relaxed italic">MUST be confirmed sound by inspector/engineer. Monitor for indicators of impending collapse.</p>
                             <textarea id="lfStructureNotes" oninput="saveData()" placeholder="Inspector name / Collapse indicators assessment..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
                         </div>
-
                         <div class="p-4 bg-red-50 rounded-lg border border-red-100 space-y-3">
                             <h3 class="font-bold text-red-900 text-xs uppercase">Hazmat & Heavy Objects</h3>
                             <p class="text-xs text-red-800 leading-relaxed italic">Asbestos/combustibles removed. Heavy objects on upper floors/roofs removed to prevent collapse.</p>
                             <textarea id="lfHazmatNotes" oninput="saveData()" placeholder="Debris removal and chimney/roof status..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Utility Disconnection</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Confirm all gas and hydro utilities are physically disconnected from the structure.</p>
                             <textarea id="lfUtilityStatus" rows="1" oninput="saveData()" placeholder="Confirmation of physical disconnection..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none pt-1"></textarea>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Approved Fuel Assessment</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Wood/paper only. NO flammable liquids, foam padding, or foam insulation permitted.</p>
@@ -420,26 +413,18 @@
                     </div>
                 </section>
 
-                <!-- Checklists -->
                 <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
-                    <!-- 2. Procedures -->
                     <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                             <i data-lucide="clipboard-check" class="w-4 h-4 text-sky-600"></i> 2. Safety Procedures & Controls
                         </h2>
-                        <div id="lf-procedures-container" class="space-y-2">
-                            <!-- JS inject -->
-                        </div>
+                        <div id="lf-procedures-container" class="space-y-2"></div>
                     </section>
-
-                    <!-- 3. PPE -->
                     <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                             <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i> 3. Discipline PPE & Equipment
                         </h2>
-                        <div id="lf-ppe-container" class="space-y-2">
-                            <!-- JS inject -->
-                        </div>
+                        <div id="lf-ppe-container" class="space-y-2"></div>
                     </section>
                 </div>
             </div>
@@ -456,7 +441,6 @@
                     </div>
                 </div>
 
-                <!-- 1. Site-Specific Hazard Assessment -->
                 <section class="space-y-6 border border-red-100 rounded-xl p-6 bg-white shadow-sm">
                     <h2 class="text-sm font-black text-red-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-red-50">
                         <i data-lucide="octagon-alert" class="w-5 h-5 text-red-600"></i> 1. SITE-SPECIFIC HAZARDS & "NO-GO" TRIGGERS
@@ -465,7 +449,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6">
                         <div class="p-4 bg-red-50 rounded-lg border border-red-100 space-y-3">
                             <h3 class="font-bold text-red-900 text-xs uppercase">Water Current Limits</h3>
-                            <p class="text-[10px] text-red-800 leading-tight italic">Verified upon arrival and every 30 mins. Max 1 knot (3 km/h). Immediate No-Go if forcing personnel under ice.</p>
+                            <p class="text-[10px] text-red-800 leading-tight italic">Verified upon arrival and every 30mins. Max 1knot for Surface and Ice Rescue training. Immediate NO GO if forcing personal under Ice. Anything greater than 1 knot, treat as Swift Water.</p>
                             <div class="grid grid-cols-2 sm:grid-cols-4 print:grid-cols-4 gap-2 pt-2">
                                 <textarea id="wrCurrent_1" rows="1" oninput="saveData()" placeholder="Arrival" class="p-1 text-[9px] border border-red-200 rounded bg-white outline-none focus:border-red-500"></textarea>
                                 <textarea id="wrCurrent_2" rows="1" oninput="saveData()" placeholder="+30m" class="p-1 text-[9px] border border-red-200 rounded bg-white outline-none focus:border-red-500"></textarea>
@@ -477,22 +461,19 @@
                                 <textarea id="wrCurrent_8" rows="1" oninput="saveData()" placeholder="+210m" class="p-1 text-[9px] border border-red-200 rounded bg-white outline-none focus:border-red-500"></textarea>
                             </div>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
-                            <h3 class="font-bold text-slate-800 text-xs uppercase">Ice Integrity & Open Leads</h3>
-                            <p class="text-xs text-slate-600 leading-relaxed">Thickness tested prior to entry. Pick-offs forbidden at closed ends of open leads without downstream safety.</p>
+                            <h3 class="font-bold text-slate-800 text-xs uppercase">Ice Integrity</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">Thickness tested prior to entry.</p>
                             <div class="flex items-center gap-2">
                                 <label class="text-[10px] font-bold text-slate-500 uppercase">Test Result:</label>
                                 <textarea id="wrIceThickness" rows="1" oninput="saveData()" placeholder="e.g. 5 inches / clear" class="flex-1 border-b border-slate-300 bg-transparent text-xs outline-none"></textarea>
                             </div>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Environmental & Weather</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Continual monitoring for frost nip, frostbite, or hypothermia based on wind chill zones.</p>
                             <textarea id="wrWeatherHazards" rows="1" oninput="saveData()" placeholder="Additional weather notes..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none pt-1"></textarea>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Physical Traps & Debris</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Assess for floating debris (ice pans, trees) and steep road-to-ice transitions (slips/falls).</p>
@@ -501,26 +482,18 @@
                     </div>
                 </section>
 
-                <!-- Checklists -->
                 <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
-                    <!-- 2. Procedures -->
                     <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                             <i data-lucide="clipboard-check" class="w-4 h-4 text-sky-600"></i> 2. Safety Procedures & Controls
                         </h2>
-                        <div id="wr-procedures-container" class="space-y-2">
-                            <!-- JS content -->
-                        </div>
+                        <div id="wr-procedures-container" class="space-y-2"></div>
                     </section>
-
-                    <!-- 3. PPE -->
                     <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                             <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i> 3. Discipline PPE & Equipment
                         </h2>
-                        <div id="wr-ppe-container" class="space-y-2">
-                            <!-- JS content -->
-                        </div>
+                        <div id="wr-ppe-container" class="space-y-2"></div>
                     </section>
                 </div>
             </div>
@@ -534,7 +507,6 @@
                     <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight text-emerald-600">Add-On: Rope Rescue</h1>
                 </div>
 
-                <!-- 1. Site-Specific Hazard Assessment -->
                 <section class="space-y-6 border border-red-100 rounded-xl p-6 bg-white shadow-sm">
                     <h2 class="text-sm font-black text-red-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-red-50">
                         <i data-lucide="octagon-alert" class="w-5 h-5 text-red-600"></i> 1. SITE-SPECIFIC HAZARDS & "NO-GO" TRIGGERS
@@ -550,19 +522,16 @@
                                 <textarea id="rrWindReading" rows="1" oninput="saveData()" placeholder="e.g. 25 km/hr" class="flex-1 border-b border-red-200 bg-transparent text-xs focus:outline-none"></textarea>
                             </div>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Utility Hazards</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Identify and isolate overhead Hydro lines or Natural Gas utilities in the operational drop zone.</p>
                             <textarea id="rrUtilityNotes" rows="1" oninput="saveData()" placeholder="Utility identification/isolation notes..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none"></textarea>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Height & Edge Hazards</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Identify fall risks (< 3m and > 3m). Assess for sharp edges, friction points, access challenges, and erosion.</p>
                             <textarea id="rrEdgeAssessment" rows="1" oninput="saveData()" placeholder="Sharp edge/erosion findings..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none pt-1"></textarea>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Line of Sight & Comms</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Identify areas where participants are out of sight or where communication challenges exist.</p>
@@ -571,26 +540,18 @@
                     </div>
                 </section>
 
-                <!-- Checklists -->
                 <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
-                    <!-- 2. Procedures -->
                     <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                             <i data-lucide="clipboard-check" class="w-4 h-4 text-sky-600"></i> 2. Safety Procedures & Controls
                         </h2>
-                        <div id="rr-procedures-container" class="space-y-2">
-                            <!-- JS content -->
-                        </div>
+                        <div id="rr-procedures-container" class="space-y-2"></div>
                     </section>
-
-                    <!-- 3. PPE -->
                     <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                             <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i> 3. Discipline PPE & Equipment
                         </h2>
-                        <div id="rr-ppe-container" class="space-y-2">
-                            <!-- JS content -->
-                        </div>
+                        <div id="rr-ppe-container" class="space-y-2"></div>
                     </section>
                 </div>
             </div>
@@ -604,7 +565,6 @@
                     <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight text-purple-600">Add-On: Confined Space</h1>
                 </div>
 
-                <!-- 1. Site-Specific Hazard Assessment -->
                 <section class="space-y-6 border border-red-100 rounded-xl p-6 bg-white shadow-sm">
                     <h2 class="text-sm font-black text-red-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-red-50">
                         <i data-lucide="octagon-alert" class="w-5 h-5 text-red-600"></i> 1. SITE-SPECIFIC HAZARDS & "NO-GO" TRIGGERS
@@ -616,13 +576,11 @@
                             <p class="text-xs text-red-800 leading-relaxed italic">Prohibited until tested for flammability, toxicity, asphyxiation, and oxygen deficiency.</p>
                             <textarea id="csAtmosNotes" oninput="saveData()" placeholder="Gas monitor readings / findings..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
                         </div>
-
                         <div class="p-4 bg-red-50 rounded-lg border border-red-100 space-y-3">
                             <h3 class="font-bold text-red-900 text-xs uppercase">Stored Energy (LOTO)</h3>
                             <p class="text-xs text-red-800 leading-relaxed italic">Identify all mechanical, electrical, hydraulic, pneumatic sources. LOTO required before entry.</p>
                             <textarea id="csLotoNotes" oninput="saveData()" placeholder="Isolation points identified..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Physical & Human</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Assess entrapment, engulfment, sharp edges, and human factors (panic, exhaustion).</p>
@@ -631,26 +589,18 @@
                     </div>
                 </section>
 
-                <!-- Checklists -->
                 <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
-                    <!-- 2. Procedures -->
                     <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                             <i data-lucide="clipboard-check" class="w-4 h-4 text-sky-600"></i> 2. Safety Procedures & Controls
                         </h2>
-                        <div id="cs-procedures-container" class="space-y-2">
-                            <!-- JS inject -->
-                        </div>
+                        <div id="cs-procedures-container" class="space-y-2"></div>
                     </section>
-
-                    <!-- 3. PPE -->
                     <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                             <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i> 3. Discipline PPE & Equipment
                         </h2>
-                        <div id="cs-ppe-container" class="space-y-2">
-                            <!-- JS inject -->
-                        </div>
+                        <div id="cs-ppe-container" class="space-y-2"></div>
                     </section>
                 </div>
             </div>
@@ -664,7 +614,6 @@
                     <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight text-amber-700">Add-On: Trench Rescue</h1>
                 </div>
 
-                <!-- Structure Type Details -->
                 <section class="flex flex-wrap gap-6 border border-slate-100 rounded-xl p-6 bg-slate-50/50 shadow-sm">
                     <label class="flex items-center gap-2 cursor-pointer group">
                         <input type="checkbox" id="trTypeProp" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
@@ -676,7 +625,6 @@
                     </label>
                 </section>
 
-                <!-- 1. Site-Specific Hazard Assessment -->
                 <section class="space-y-6 border border-red-100 rounded-xl p-6 bg-white shadow-sm">
                     <h2 class="text-sm font-black text-red-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-red-50">
                         <i data-lucide="octagon-alert" class="w-5 h-5 text-red-600"></i> 1. SITE-SPECIFIC HAZARDS & "NO-GO" TRIGGERS
@@ -688,19 +636,16 @@
                             <p class="text-xs text-red-800 leading-relaxed italic">Daily inspection by competent person. Classify soil using recognized techniques. ALL rescue shoring designed for Type C.</p>
                             <textarea id="trSoilNotes" oninput="saveData()" placeholder="Soil classification & cave-in hazard notes..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
                         </div>
-
                         <div class="p-4 bg-red-50 rounded-lg border border-red-100 space-y-3">
                             <h3 class="font-bold text-red-900 text-xs uppercase">Atmospheric Hazards</h3>
                             <p class="text-xs text-red-800 leading-relaxed italic">Monitor at 4-foot increments (O2, LEL, toxics, CO, H2S) before training begins.</p>
                             <textarea id="trAtmosNotes" oninput="saveData()" placeholder="Atmospheric readings / Gas monitor findings..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Surface Encumbrances & Utilities</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Determine location of sewer, phone, fuel, electric, water. Render safe. Remove/support surface objects.</p>
                             <textarea id="trUtilityNotes" rows="1" oninput="saveData()" placeholder="Utility locations and isolations..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none pt-1"></textarea>
                         </div>
-
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Spoil & Edge Protection</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Spoil cleared 2ft from lip, max 3ft high (unless >8ft away). Edge protection (e.g. 2x8, 2x10, 2x12, plywood) applied.</p>
@@ -709,26 +654,18 @@
                     </div>
                 </section>
 
-                <!-- Checklists -->
                 <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
-                    <!-- 2. Procedures -->
                     <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                             <i data-lucide="clipboard-check" class="w-4 h-4 text-sky-600"></i> 2. Safety Procedures & Controls
                         </h2>
-                        <div id="tr-procedures-container" class="space-y-2">
-                            <!-- JS inject -->
-                        </div>
+                        <div id="tr-procedures-container" class="space-y-2"></div>
                     </section>
-
-                    <!-- 3. PPE -->
                     <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
                             <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i> 3. Discipline PPE & Equipment
                         </h2>
-                        <div id="tr-ppe-container" class="space-y-2">
-                            <!-- JS inject -->
-                        </div>
+                        <div id="tr-ppe-container" class="space-y-2"></div>
                     </section>
                 </div>
             </div>
@@ -776,6 +713,20 @@
     </div>
 
     <script>
+        // Bulletproof storage wrapper to handle extremely strict browser sandboxing
+        const memoryStorage = {};
+        const storageProvider = {
+            getItem: (key) => {
+                try { return window.localStorage.getItem(key); } catch (e) { return memoryStorage[key] || null; }
+            },
+            setItem: (key, value) => {
+                try { window.localStorage.setItem(key, value); } catch (e) { memoryStorage[key] = value; }
+            },
+            removeItem: (key) => {
+                try { window.localStorage.removeItem(key); } catch (e) { delete memoryStorage[key]; }
+            }
+        };
+
         const checklistItems = [
             { id: 'siteInspected', label: 'Site & equipment inspected for hazards.' },
             { id: 'ppeInspected', label: 'PPE inspected for all participants.' },
@@ -817,7 +768,7 @@
 
         const wrProcedureItems = [
             { id: 'wrSpotters', label: 'Spotters & Downstream: Established upstream/downstream with radios to observe debris and current changes.' },
-            { id: 'wrShoreProx', label: 'Shore Proximity: Anyone operating within 10ft (3m) of shoreline must wear a PFD.' },
+            { id: 'wrShoreProx', label: 'Shore Proximity: Anyone operating in the warm or Hot zone must wear a PFD.' },
             { id: 'wrTethering', label: 'Tethering & Tag Lines: Personnel on ice/in water tethered to shore. Diagonal lines for current. Ladders/tag lines for slopes.' },
             { id: 'wrCommSystem', label: 'Communication System: Clear hand signals and whistle blasts reviewed with all participants.' },
             { id: 'wrRehabMedical', label: 'Rehab & Medical: Established warm area with drinks. AED and medical bag immediately available. Monitor cold stress.' },
@@ -873,17 +824,62 @@
             { id: 'trLineTender', label: 'Line Tenders: Retrieval lines attached to personnel are managed over ladder rungs by a line tender.' }
         ];
 
+        // --- STREAMING_CHUNK:Leaflet Map Initialization & Drawing Logic... ---
+        let map;
+        let drawLayerGroup;
         let currentInteraction = 'map';
+        let strokeColor = '#0f172a';
+        let activePolyline = null;
+        let undoStack = [];
+
+        function initMap() {
+            if (typeof L === 'undefined') {
+                showError("The mapping library failed to load due to network or security settings. Drawings are disabled.");
+                return;
+            }
+
+            map = L.map('mapContainer', {
+                zoomControl: true,
+                doubleClickZoom: false
+            }).setView([43.5890, -79.6441], 13);
+
+            // Using OpenStreetMap fallback just in case Esri gets blocked
+            const esriImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri',
+                maxZoom: 19
+            });
+            const osmStreet = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 19
+            });
+
+            // Start with Esri
+            esriImagery.addTo(map);
+
+            drawLayerGroup = L.featureGroup().addTo(map);
+
+            map.on('mousedown', onMapMouseDown);
+            map.on('mousemove', onMapMouseMove);
+            map.on('mouseup', onMapMouseUp);
+            map.on('click', onMapClickForText);
+
+            // Handle panning/zooming to save state
+            map.on('moveend', saveCanvasData);
+            map.on('zoomend', saveCanvasData);
+
+            loadCanvasData();
+            setInteraction('map');
+        }
 
         function setInteraction(mode) {
+            if (!map) return;
             currentInteraction = mode;
-            const mapFrame = document.getElementById('mapFrame');
-            const sketchCanvas = document.getElementById('sketchCanvas');
             const btnModeMap = document.getElementById('btnModeMap');
             const btnModeDraw = document.getElementById('btnModeDraw');
             const btnModeText = document.getElementById('btnModeText');
             const colorBtns = document.querySelectorAll('.color-btn');
             const penLabel = document.getElementById('penLabel');
+            const mc = document.getElementById('mapContainer');
 
             const activeClass = "px-3 py-1.5 text-xs font-bold rounded-md transition-colors bg-white text-slate-800 shadow-sm border border-slate-200 flex items-center gap-1.5";
             const inactiveClass = "px-3 py-1.5 text-xs font-bold rounded-md transition-colors text-slate-500 hover:text-slate-800 flex items-center gap-1.5";
@@ -893,25 +889,26 @@
             btnModeText.className = inactiveClass;
 
             if (mode === 'map') {
-                // Enable map interaction, disable canvas drawing
-                sketchCanvas.style.pointerEvents = 'none';
+                map.dragging.enable();
+                map.touchZoom.enable();
+                map.scrollWheelZoom.enable();
+                mc.style.cursor = 'grab';
                 btnModeMap.className = activeClass;
                 
-                // Disable pens visually
                 colorBtns.forEach(btn => {
                     btn.classList.add('opacity-50', 'cursor-not-allowed');
                     btn.disabled = true;
                 });
                 penLabel.classList.add('opacity-50');
             } else {
-                // Disable map interaction, enable canvas drawing/text
-                sketchCanvas.style.pointerEvents = 'auto';
-                sketchCanvas.style.cursor = mode === 'text' ? 'text' : 'crosshair';
+                map.dragging.disable();
+                map.touchZoom.disable();
+                map.scrollWheelZoom.disable();
+                mc.style.cursor = mode === 'text' ? 'text' : 'crosshair';
                 
                 if (mode === 'draw') btnModeDraw.className = activeClass;
                 if (mode === 'text') btnModeText.className = activeClass;
                 
-                // Enable pens visually
                 colorBtns.forEach(btn => {
                     btn.classList.remove('opacity-50', 'cursor-not-allowed');
                     btn.disabled = false;
@@ -920,263 +917,58 @@
             }
         }
 
-        function init() {
-            // Render Checklists
-            const checkContainer = document.getElementById('checklist-container');
-            checklistItems.forEach(item => {
-                checkContainer.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            // Render Briefing
-            const briefContainer = document.getElementById('briefing-container');
-            briefingItems.forEach(item => {
-                briefContainer.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            // Render Live Fire Add-On Checklists
-            const lfProcCont = document.getElementById('lf-procedures-container');
-            lfProcedureItems.forEach(item => {
-                lfProcCont.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            const lfPpeCont = document.getElementById('lf-ppe-container');
-            lfPpeItems.forEach(item => {
-                lfPpeCont.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            // Render Water Rescue Add-On Checklists
-            const wrProcCont = document.getElementById('wr-procedures-container');
-            wrProcedureItems.forEach(item => {
-                wrProcCont.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            const wrPpeCont = document.getElementById('wr-ppe-container');
-            wrPpeItems.forEach(item => {
-                wrPpeCont.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            // Render Rope Rescue Add-On Checklists
-            const rrProcCont = document.getElementById('rr-procedures-container');
-            rrProcedureItems.forEach(item => {
-                rrProcCont.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            const rrPpeCont = document.getElementById('rr-ppe-container');
-            rrPpeItems.forEach(item => {
-                rrPpeCont.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            // Render Confined Space Add-On Checklists
-            const csProcCont = document.getElementById('cs-procedures-container');
-            csProcedureItems.forEach(item => {
-                csProcCont.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            const csPpeCont = document.getElementById('cs-ppe-container');
-            csPpeItems.forEach(item => {
-                csPpeCont.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            // Render Trench Rescue Add-On Checklists
-            const trProcCont = document.getElementById('tr-procedures-container');
-            trProcedureItems.forEach(item => {
-                trProcCont.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            const trPpeCont = document.getElementById('tr-ppe-container');
-            trPpeItems.forEach(item => {
-                trPpeCont.innerHTML += createCheckbox(item.id, item.label);
-            });
-
-            // Setup textarea auto-resize listener
-            document.querySelectorAll('textarea').forEach(el => {
-                el.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = this.scrollHeight + 'px';
-                });
-            });
-
-            loadData();
-
-            // Set default dates if empty (running after loadData ensures newly cleared forms repopulate with today's date)
-            if(!document.getElementById('sigDate').value) {
-                document.getElementById('sigDate').value = new Date().toISOString().split('T')[0];
-            }
-            if(!document.getElementById('date').value) {
-                document.getElementById('date').value = new Date().toISOString().split('T')[0];
-            }
-
-            initCanvas();
-            lucide.createIcons();
-            setInteraction('map'); // Set initial state
-        }
-
-        // --- CUSTOM MODAL HANDLERS ---
-        function showError(message) {
-            document.getElementById('errorModalMessage').textContent = message;
-            document.getElementById('errorModal').classList.remove('hidden');
-        }
-
-        // --- CANVAS SKETCHING LOGIC ---
-        let canvas, ctx;
-        let isDrawing = false;
-        let currentX = 0;
-        let currentY = 0;
-        let strokeColor = '#0f172a';
-        let undoStack = [];
-
-        function initCanvas() {
-            canvas = document.getElementById('sketchCanvas');
-            ctx = canvas.getContext('2d');
-            
-            // Set canvas actual resolution matching container width
-            canvas.width = canvas.parentElement.clientWidth || 800;
-            canvas.height = 700;
-
-            // Mouse Events
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-
-            // Added click event specifically for cleanly triggering Text on desktop and mobile
-            canvas.addEventListener('click', handleCanvasClick);
-
-            // Touch Events for Tablets/Phones
-            canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
-            canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
-            canvas.addEventListener('touchend', stopDrawing);
-            
-            loadCanvasData();
-            
-            // Adjust canvas size when window resizes to maintain drawings
-            window.addEventListener('resize', () => {
-                const dataUrl = canvas.toDataURL();
-                canvas.width = canvas.parentElement.clientWidth || 800;
-                const img = new Image();
-                img.onload = () => ctx.drawImage(img, 0, 0);
-                img.src = dataUrl;
-            });
-        }
-
         function setDrawColor(color) {
             strokeColor = color;
-            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('ring-slate-900', 'ring-red-500', 'ring-yellow-500', 'ring-green-500', 'ring-blue-500', 'active-color'));
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('ring-slate-900', 'ring-red-500', 'ring-yellow-500', 'ring-green-500', 'ring-blue-500', 'ring-slate-200', 'active-color'));
             const targetBtn = event.currentTarget;
             targetBtn.classList.add('active-color');
             
-            // Add specific ring color back
             if(color === '#ef4444') targetBtn.classList.add('ring-red-500');
             else if(color === '#eab308') targetBtn.classList.add('ring-yellow-500');
             else if(color === '#22c55e') targetBtn.classList.add('ring-green-500');
             else if(color === '#3b82f6') targetBtn.classList.add('ring-blue-500');
+            else if(color === '#ffffff') targetBtn.classList.add('ring-slate-200');
             else targetBtn.classList.add('ring-slate-900');
         }
 
-        function getCoordinates(e) {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-
-            if (e.touches && e.touches.length > 0) {
-                return [
-                    (e.touches[0].clientX - rect.left) * scaleX,
-                    (e.touches[0].clientY - rect.top) * scaleY
-                ];
-            } else if (e.changedTouches && e.changedTouches.length > 0) {
-                return [
-                    (e.changedTouches[0].clientX - rect.left) * scaleX,
-                    (e.changedTouches[0].clientY - rect.top) * scaleY
-                ];
-            }
-            return [
-                (e.clientX - rect.left) * scaleX,
-                (e.clientY - rect.top) * scaleY
-            ];
+        function onMapMouseDown(e) {
+            if (currentInteraction !== 'draw') return;
+            activePolyline = L.polyline([e.latlng], {
+                color: strokeColor,
+                weight: 4,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(drawLayerGroup);
         }
 
-        function handleCanvasClick(e) {
-            if (currentInteraction === 'text') {
-                insertTextInput(e);
-            }
+        function onMapMouseMove(e) {
+            if (!activePolyline || currentInteraction !== 'draw') return;
+            activePolyline.addLatLng(e.latlng);
         }
 
-        function startDrawing(e) {
-            if (currentInteraction !== 'draw') return; // Ignore if mapping or texting
-
-            [currentX, currentY] = getCoordinates(e);
-            isDrawing = true;
-            pushToUndoStack();
-
-            // Draw a dot immediately for a simple tap/click
-            ctx.beginPath();
-            ctx.moveTo(currentX, currentY);
-            ctx.lineTo(currentX, currentY);
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = 4;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.stroke();
-        }
-
-        function draw(e) {
-            if (!isDrawing || currentInteraction !== 'draw') return;
-            e.preventDefault(); // Prevent scrolling on touch
-            const [newX, newY] = getCoordinates(e);
-            
-            ctx.beginPath();
-            ctx.moveTo(currentX, currentY);
-            ctx.lineTo(newX, newY);
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = 4;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.stroke();
-            
-            [currentX, currentY] = [newX, newY];
-        }
-
-        function stopDrawing() {
-            if (isDrawing && currentInteraction === 'draw') {
-                isDrawing = false;
+        function onMapMouseUp(e) {
+            if (activePolyline && currentInteraction === 'draw') {
+                undoStack.push(activePolyline._leaflet_id);
+                activePolyline = null;
                 saveCanvasData();
             }
         }
 
-        function insertTextInput(e) {
-            // If there's an active input, finalize it first
-            const existingInput = document.getElementById('canvasTextInput');
-            if (existingInput) {
-                existingInput.blur();
-                // We return here to force the user to click again to create a new text box, preventing accidental doubles
-                return;
-            }
+        function onMapClickForText(e) {
+            if (currentInteraction !== 'text') return;
 
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            
-            let clientX = e.clientX;
-            let clientY = e.clientY;
-            
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else if (e.changedTouches && e.changedTouches.length > 0) {
-                clientX = e.changedTouches[0].clientX;
-                clientY = e.changedTouches[0].clientY;
-            }
+            const existingInput = document.getElementById('mapTextInput');
+            if (existingInput) { existingInput.blur(); return; }
 
+            const latlng = e.latlng;
+            const containerPoint = map.latLngToContainerPoint(latlng);
+            
             const input = document.createElement('input');
             input.type = 'text';
-            input.id = 'canvasTextInput';
+            input.id = 'mapTextInput';
             input.style.position = 'absolute';
-            
-            // Calculate position relative to the container
-            const containerRect = canvas.parentElement.getBoundingClientRect();
-            input.style.left = (clientX - containerRect.left) + 'px';
-            input.style.top = (clientY - containerRect.top - 12) + 'px'; 
-            
+            input.style.left = containerPoint.x + 'px';
+            input.style.top = (containerPoint.y - 12) + 'px';
             input.style.color = strokeColor;
             input.style.font = 'bold 16px Inter, sans-serif';
             input.style.background = 'rgba(255, 255, 255, 0.95)';
@@ -1184,20 +976,13 @@
             input.style.outline = 'none';
             input.style.padding = '2px 6px';
             input.style.borderRadius = '4px';
-            input.style.zIndex = '50';
-            input.style.minWidth = '150px';
-
-            // Prevent clicks inside the input box from triggering canvas clicks
-            input.addEventListener('click', e => e.stopPropagation());
-            input.addEventListener('mousedown', e => e.stopPropagation());
-            input.addEventListener('touchstart', e => e.stopPropagation());
-
-            canvas.parentElement.appendChild(input);
+            input.style.zIndex = '1000';
             
-            // Timeout ensures element is fully painted before requesting focus
-            setTimeout(() => {
-                input.focus();
-            }, 10);
+            input.addEventListener('mousedown', L.DomEvent.stopPropagation);
+            input.addEventListener('click', L.DomEvent.stopPropagation);
+
+            document.getElementById('mapContainer').appendChild(input);
+            setTimeout(() => input.focus(), 10);
 
             let finalized = false;
             function finalizeText() {
@@ -1205,43 +990,30 @@
                 finalized = true;
 
                 if (input.value.trim() !== '') {
-                    pushToUndoStack();
-                    const canvasX = (clientX - rect.left) * scaleX;
-                    const canvasY = (clientY - rect.top) * scaleY;
-                    ctx.font = 'bold 16px Inter, sans-serif';
-                    ctx.fillStyle = strokeColor;
-                    ctx.textBaseline = 'middle';
-                    // Text offset slightly to align with where the input box was visually placed
-                    ctx.fillText(input.value, canvasX + 4, canvasY); 
+                    const textIcon = L.divIcon({
+                        className: 'custom-text-icon',
+                        html: `<div style="color:${strokeColor}; font-weight:900; font-size:16px; font-family:Inter, sans-serif; white-space:nowrap; text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff;">${input.value}</div>`,
+                        iconSize: [null, null]
+                    });
+                    const marker = L.marker(latlng, {icon: textIcon}).addTo(drawLayerGroup);
+                    undoStack.push(marker._leaflet_id);
                     saveCanvasData();
                 }
-                if(input.parentElement) {
-                    input.parentElement.removeChild(input);
-                }
+                if(input.parentElement) input.parentElement.removeChild(input);
             }
 
             input.addEventListener('blur', finalizeText);
             input.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
-                    finalizeText();
-                }
+                if (event.key === 'Enter') finalizeText();
             });
         }
 
-        function handleTouchStart(e) {
-            // Prevent default ONLY if we are actively drawing.
-            // Preventing default on Text mode will stop mobile keyboards from opening.
-            if (currentInteraction === 'draw') {
-                e.preventDefault();
+        function undoSketch() {
+            if (undoStack.length > 0) {
+                const layerId = undoStack.pop();
+                drawLayerGroup.removeLayer(layerId);
+                saveCanvasData();
             }
-            startDrawing(e);
-        }
-
-        function handleTouchMove(e) {
-            if (currentInteraction === 'draw') {
-                e.preventDefault();
-            }
-            draw(e);
         }
 
         function clearCanvas() {
@@ -1249,122 +1021,117 @@
         }
         
         function confirmClearCanvas() {
-            pushToUndoStack();
-            // Completely clear the drawing layer
-            ctx.clearRect(0, 0, canvas.width, canvas.height); 
-            
-            // Completely clear the Google Map background layer
-            const mapFrame = document.getElementById('mapFrame');
-            if(mapFrame) mapFrame.src = 'about:blank';
-            
+            if (drawLayerGroup) drawLayerGroup.clearLayers();
+            undoStack = [];
             saveCanvasData();
             document.getElementById('clearCanvasModal').classList.add('hidden');
-            
-            // Revert interface to default map interaction state
             setInteraction('map'); 
         }
 
-        function handleImageUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    pushToUndoStack();
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    
-                    // Scale image to fit canvas appropriately
-                    const hRatio = canvas.width / img.width;
-                    const vRatio = canvas.height / img.height;
-                    const ratio = Math.min(hRatio, vRatio);
-                    const centerShift_x = (canvas.width - img.width * ratio) / 2;
-                    const centerShift_y = (canvas.height - img.height * ratio) / 2;
-                    
-                    ctx.drawImage(img, 0, 0, img.width, img.height, centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);
-                    saveCanvasData();
-                    setInteraction('draw'); // switch to draw mode to edit uploaded image
+        function saveCanvasData() {
+            if (!map || !drawLayerGroup) return;
+            const layersData = [];
+            drawLayerGroup.eachLayer(layer => {
+                if (layer instanceof L.Polyline) {
+                    layersData.push({
+                        type: 'polyline',
+                        latlngs: layer.getLatLngs(),
+                        color: layer.options.color
+                    });
+                } else if (layer instanceof L.Marker) {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = layer.options.icon.options.html;
+                    const innerDiv = tempDiv.firstChild;
+                    if(innerDiv) {
+                        layersData.push({
+                            type: 'text',
+                            latlng: layer.getLatLng(),
+                            text: innerDiv.innerText,
+                            color: innerDiv.style.color
+                        });
+                    }
                 }
-                img.src = event.target.result;
-            }
-            reader.readAsDataURL(file);
-            e.target.value = '';
+            });
+
+            let data = JSON.parse(storageProvider.getItem('mfes_safety_plan_v2') || '{}');
+            data['mapDrawings'] = layersData;
+            data['mapCenter'] = map.getCenter();
+            data['mapZoom'] = map.getZoom();
+            storageProvider.setItem('mfes_safety_plan_v2', JSON.stringify(data));
         }
 
-        function loadMapFromAddress() {
-            const addressField = document.getElementById('location').value;
-            if (addressField && addressField.trim() !== '') {
-                const encodedAddress = encodeURIComponent(addressField);
-                document.getElementById('mapFrame').src = `https://maps.google.com/maps?q=${encodedAddress}&t=k&z=19&output=embed`;
-                setInteraction('map');
-                setTimeout(saveCanvasData, 100);
-            } else {
-                showError("Please enter an address in the 'Training Site Location' field in Section 1 first.");
+        function loadCanvasData() {
+            if (!map || !drawLayerGroup) return;
+            const data = JSON.parse(storageProvider.getItem('mfes_safety_plan_v2') || '{}');
+            
+            if (data.mapCenter && data.mapZoom) {
+                map.setView(data.mapCenter, data.mapZoom);
+            }
+
+            if (data.mapDrawings && Array.isArray(data.mapDrawings)) {
+                drawLayerGroup.clearLayers();
+                undoStack = [];
+                data.mapDrawings.forEach(item => {
+                    if (item.type === 'polyline') {
+                        const layer = L.polyline(item.latlngs, { color: item.color, weight: 4, lineCap: 'round', lineJoin: 'round' }).addTo(drawLayerGroup);
+                        undoStack.push(layer._leaflet_id);
+                    } else if (item.type === 'text') {
+                        const textIcon = L.divIcon({
+                            className: 'custom-text-icon',
+                            html: `<div style="color:${item.color}; font-weight:900; font-size:16px; font-family:Inter, sans-serif; white-space:nowrap; text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff;">${item.text}</div>`,
+                            iconSize: [null, null]
+                        });
+                        const marker = L.marker(item.latlng, {icon: textIcon}).addTo(drawLayerGroup);
+                        undoStack.push(marker._leaflet_id);
+                    }
+                });
+            }
+        }
+
+        async function loadMapFromAddress() {
+            const address = document.getElementById('location').value;
+            if (!address || address.trim() === '') {
+                return showError("Please enter an address in the 'Training Site Location' field in Section 1 first.");
+            }
+            
+            if(!map) return showError("Map failed to load. Cannot search address.");
+
+            try {
+                const query = address.toLowerCase().includes('mississauga') ? address : `${address}, Mississauga, ON`;
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    map.setView([lat, lon], 18);
+                    setInteraction('map');
+                    saveCanvasData();
+                } else {
+                    showError("Address not found on the map. Try being more specific (e.g., '123 Main St, City').");
+                }
+            } catch (err) {
+                showError("Error connecting to the map search service.");
             }
         }
 
         function loadMapFromLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    document.getElementById('mapFrame').src = `https://maps.google.com/maps?q=${lat},${lon}&t=k&z=19&output=embed`;
-                    setInteraction('map');
-                    setTimeout(saveCanvasData, 100);
-                }, err => {
-                    showError("Unable to retrieve location via GPS. Please type the address in Section 1 and use the 'Load Address on Map' button instead.");
-                }, { timeout: 5000 });
-            } else {
-                showError("Geolocation is not supported by your browser.");
-            }
+            if(!map) return showError("Map failed to load.");
+            map.locate({setView: true, maxZoom: 18});
+            map.once('locationfound', function(e) {
+                setInteraction('map');
+                saveCanvasData();
+            });
+            map.once('locationerror', function(e) {
+                showError("Unable to retrieve location via GPS. Please type the address in Section 1 and use the 'Load Address on Map' button instead.");
+            });
         }
 
-        function saveCanvasData() {
-            const dataUrl = canvas.toDataURL('image/png');
-            let data = JSON.parse(localStorage.getItem('mfes_safety_plan_v2') || '{}');
-            data['siteSketchData'] = dataUrl;
-            data['mapFrameSrc'] = document.getElementById('mapFrame').src;
-            localStorage.setItem('mfes_safety_plan_v2', JSON.stringify(data));
+        // --- STREAMING_CHUNK:General App Functions & Load Data... ---
+        function showError(message) {
+            document.getElementById('errorModalMessage').textContent = message;
+            document.getElementById('errorModal').classList.remove('hidden');
         }
-
-        function loadCanvasData() {
-            const data = JSON.parse(localStorage.getItem('mfes_safety_plan_v2') || '{}');
-            
-            if (data['mapFrameSrc']) {
-                document.getElementById('mapFrame').src = data['mapFrameSrc'];
-            }
-
-            if (data['siteSketchData']) {
-                const img = new Image();
-                img.onload = function() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0);
-                }
-                img.src = data['siteSketchData'];
-            } else {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-        }
-
-        function pushToUndoStack() {
-            undoStack.push(canvas.toDataURL('image/png'));
-            if (undoStack.length > 50) undoStack.shift(); // Limit to 50 actions
-        }
-
-        function undoSketch() {
-            if (undoStack.length > 0) {
-                const prevState = undoStack.pop();
-                const img = new Image();
-                img.onload = function() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0);
-                    saveCanvasData();
-                };
-                img.src = prevState;
-            }
-        }
-        // --- END CANVAS LOGIC ---
 
         function createCheckbox(id, label) {
             return `
@@ -1386,9 +1153,7 @@
             input.className = "assistant-input flex-1 border-b-2 border-slate-100 p-2 focus:border-sky-600 outline-none transition-colors text-sm bg-transparent";
             input.placeholder = 'Instructor Name';
             input.value = value;
-            input.oninput = function() {
-                saveData();
-            };
+            input.oninput = saveData;
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
@@ -1397,7 +1162,6 @@
             removeBtn.onclick = function() {
                 wrapper.remove();
                 saveData();
-                // Ensure at least one input box always remains
                 if(document.querySelectorAll('.assistant-input').length === 0) {
                     addAssistant();
                 }
@@ -1407,7 +1171,7 @@
             wrapper.appendChild(removeBtn);
             grid.appendChild(wrapper);
 
-            if (window.lucide) {
+            if (typeof lucide !== 'undefined') {
                 lucide.createIcons({ nameAttr: 'data-lucide', root: wrapper });
             }
         }
@@ -1416,29 +1180,33 @@
             const data = {};
             const inputs = document.querySelectorAll('input, textarea');
             inputs.forEach(el => {
-                if(el.classList.contains('assistant-input')) return; // handled separately
-                if(!el.id) return; // skip elements without ids
+                if(el.classList.contains('assistant-input')) return;
+                if(!el.id) return;
 
                 if(el.type === 'checkbox') data[el.id] = el.checked;
                 else data[el.id] = el.value;
             });
 
-            // Save dynamically generated assistants
             const assistants = Array.from(document.querySelectorAll('.assistant-input')).map(el => el.value);
             data['assistantsList'] = assistants;
 
-            localStorage.setItem('mfes_safety_plan_v2', JSON.stringify(data));
+            const existingData = JSON.parse(storageProvider.getItem('mfes_safety_plan_v2') || '{}');
+            data['mapDrawings'] = existingData['mapDrawings'] || [];
+            data['mapCenter'] = existingData['mapCenter'];
+            data['mapZoom'] = existingData['mapZoom'];
+
+            storageProvider.setItem('mfes_safety_plan_v2', JSON.stringify(data));
         }
 
         function loadData() {
-            const saved = localStorage.getItem('mfes_safety_plan_v2');
+            const saved = storageProvider.getItem('mfes_safety_plan_v2');
             if(!saved) {
-                addAssistant(); // Load at least one empty box if no data exists
+                addAssistant();
                 return;
             }
             const data = JSON.parse(saved);
             Object.keys(data).forEach(id => {
-                if(id === 'assistantsList') return; // skip
+                if(['assistantsList', 'mapDrawings', 'mapCenter', 'mapZoom'].includes(id)) return;
                 const el = document.getElementById(id);
                 if(el) {
                     if(el.type === 'checkbox') el.checked = data[id];
@@ -1446,15 +1214,13 @@
                 }
             });
 
-            // Load assistants
-            document.getElementById('assistants-grid').innerHTML = ''; // clear grid
+            document.getElementById('assistants-grid').innerHTML = '';
             if (data.assistantsList && data.assistantsList.length > 0) {
                 data.assistantsList.forEach(name => addAssistant(name));
             } else {
                 addAssistant();
             }
 
-            // Trigger resize for all textareas after loading content
             setTimeout(() => {
                 document.querySelectorAll('textarea').forEach(el => {
                     el.style.height = 'auto';
@@ -1462,59 +1228,28 @@
                 });
             }, 50);
 
-            toggleAddOns(); // Ensure sections visibility matches loaded checkboxes
+            toggleAddOns();
         }
 
         function toggleAddOns() {
-            const liveFireCheckbox = document.getElementById('addonLiveFire');
-            const liveFireSection = document.getElementById('liveFireSection');
-            
-            if(liveFireCheckbox && liveFireCheckbox.checked) {
-                liveFireSection.classList.remove('hidden');
-            } else if (liveFireSection) {
-                liveFireSection.classList.add('hidden');
-            }
-            
-            const waterRescueCheckbox = document.getElementById('addonWater');
-            const waterRescueSection = document.getElementById('waterRescueSection');
-            
-            if(waterRescueCheckbox && waterRescueCheckbox.checked) {
-                waterRescueSection.classList.remove('hidden');
-            } else if (waterRescueSection) {
-                waterRescueSection.classList.add('hidden');
-            }
-            
-            const ropeRescueCheckbox = document.getElementById('addonRope');
-            const ropeRescueSection = document.getElementById('ropeRescueSection');
-            
-            if(ropeRescueCheckbox && ropeRescueCheckbox.checked) {
-                ropeRescueSection.classList.remove('hidden');
-            } else if (ropeRescueSection) {
-                ropeRescueSection.classList.add('hidden');
-            }
-            
-            const conSpaceCheckbox = document.getElementById('addonConSpace');
-            const conSpaceSection = document.getElementById('conSpaceSection');
-            
-            if(conSpaceCheckbox && conSpaceCheckbox.checked) {
-                conSpaceSection.classList.remove('hidden');
-            } else if (conSpaceSection) {
-                conSpaceSection.classList.add('hidden');
+            const maps = {
+                'addonLiveFire': 'liveFireSection',
+                'addonWater': 'waterRescueSection',
+                'addonRope': 'ropeRescueSection',
+                'addonConSpace': 'conSpaceSection',
+                'addonTrench': 'trenchRescueSection'
+            };
+
+            for (const [chkId, secId] of Object.entries(maps)) {
+                const chk = document.getElementById(chkId);
+                const sec = document.getElementById(secId);
+                if (chk && sec) {
+                    if (chk.checked) sec.classList.remove('hidden');
+                    else sec.classList.add('hidden');
+                }
             }
 
-            const trenchRescueCheckbox = document.getElementById('addonTrench');
-            const trenchRescueSection = document.getElementById('trenchRescueSection');
-            
-            if(trenchRescueCheckbox && trenchRescueCheckbox.checked) {
-                trenchRescueSection.classList.remove('hidden');
-            } else if (trenchRescueSection) {
-                trenchRescueSection.classList.add('hidden');
-            }
-            
-            // Re-render icons for newly visible elements if necessary
-            if (window.lucide) {
-                lucide.createIcons();
-            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function resetForm() {
@@ -1522,11 +1257,67 @@
         }
 
         function confirmReset() {
-            localStorage.removeItem('mfes_safety_plan_v2');
+            storageProvider.removeItem('mfes_safety_plan_v2');
             location.reload();
         }
 
-        window.onload = init;
+        // --- STREAMING_CHUNK:App Bootstrapper... ---
+        function initApp() {
+            try {
+                // Populate arrays
+                const mapping = [
+                    { data: checklistItems, container: 'checklist-container' },
+                    { data: briefingItems, container: 'briefing-container' },
+                    { data: lfProcedureItems, container: 'lf-procedures-container' },
+                    { data: lfPpeItems, container: 'lf-ppe-container' },
+                    { data: wrProcedureItems, container: 'wr-procedures-container' },
+                    { data: wrPpeItems, container: 'wr-ppe-container' },
+                    { data: rrProcedureItems, container: 'rr-procedures-container' },
+                    { data: rrPpeItems, container: 'rr-ppe-container' },
+                    { data: csProcedureItems, container: 'cs-procedures-container' },
+                    { data: csPpeItems, container: 'cs-ppe-container' },
+                    { data: trProcedureItems, container: 'tr-procedures-container' },
+                    { data: trPpeItems, container: 'tr-ppe-container' }
+                ];
+
+                mapping.forEach(m => {
+                    const el = document.getElementById(m.container);
+                    if (el) m.data.forEach(item => el.innerHTML += createCheckbox(item.id, item.label));
+                });
+
+                document.querySelectorAll('textarea').forEach(el => {
+                    el.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = this.scrollHeight + 'px';
+                    });
+                });
+
+                loadData();
+
+                if(!document.getElementById('sigDate').value) {
+                    document.getElementById('sigDate').value = new Date().toISOString().split('T')[0];
+                }
+                if(!document.getElementById('date').value) {
+                    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                }
+
+                initMap();
+                
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            } catch (e) {
+                console.error("Initialization Failed:", e);
+                showError("The app failed to load completely. Please check your network connection and reload the page.");
+            }
+        }
+
+        // Extremely safe trigger mechanism
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
     </script>
 </body>
 </html>
