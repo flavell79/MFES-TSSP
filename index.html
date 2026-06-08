@@ -115,7 +115,11 @@
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer group">
                         <input type="checkbox" id="addonConSpace" onchange="toggleAddOns(); saveData()" class="w-4 h-4 rounded border-sky-300 accent-sky-700">
-                        <span class="text-sm font-semibold text-slate-700 group-hover:text-sky-700 transition-colors">Con Space Rescue</span>
+                        <span class="text-sm font-semibold text-slate-700 group-hover:text-sky-700 transition-colors">Con Space</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" id="addonTrench" onchange="toggleAddOns(); saveData()" class="w-4 h-4 rounded border-sky-300 accent-sky-700">
+                        <span class="text-sm font-semibold text-slate-700 group-hover:text-sky-700 transition-colors">Trench Rescue</span>
                     </label>
                 </div>
             </div>
@@ -651,6 +655,84 @@
                 </div>
             </div>
 
+            <!-- TRENCH RESCUE ADD-ON SECTION -->
+            <div id="trenchRescueSection" class="hidden space-y-8 mt-12 pt-8 border-t-4 border-amber-600 print:break-before-page print:border-t-0 print:mt-0 print:pt-0">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-100 rounded-lg">
+                        <i data-lucide="shovel" class="w-6 h-6 text-amber-700"></i>
+                    </div>
+                    <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight text-amber-700">Add-On: Trench Rescue</h1>
+                </div>
+
+                <!-- Structure Type Details -->
+                <section class="flex flex-wrap gap-6 border border-slate-100 rounded-xl p-6 bg-slate-50/50 shadow-sm">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" id="trTypeProp" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                        <span class="text-xs font-bold uppercase text-slate-600 group-hover:text-sky-700 transition-colors">Trench Prop</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" id="trTypeLive" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                        <span class="text-xs font-bold uppercase text-slate-600 group-hover:text-sky-700 transition-colors">Live Trench</span>
+                    </label>
+                </section>
+
+                <!-- 1. Site-Specific Hazard Assessment -->
+                <section class="space-y-6 border border-red-100 rounded-xl p-6 bg-white shadow-sm">
+                    <h2 class="text-sm font-black text-red-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-red-50">
+                        <i data-lucide="octagon-alert" class="w-5 h-5 text-red-600"></i> 1. SITE-SPECIFIC HAZARDS & "NO-GO" TRIGGERS
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6">
+                        <div class="p-4 bg-red-50 rounded-lg border border-red-100 space-y-3">
+                            <h3 class="font-bold text-red-900 text-xs uppercase">Soil & Cave-in Assessment</h3>
+                            <p class="text-xs text-red-800 leading-relaxed italic">Daily inspection by competent person. Classify soil using recognized techniques. ALL rescue shoring designed for Type C.</p>
+                            <textarea id="trSoilNotes" oninput="saveData()" placeholder="Soil classification & cave-in hazard notes..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
+                        </div>
+
+                        <div class="p-4 bg-red-50 rounded-lg border border-red-100 space-y-3">
+                            <h3 class="font-bold text-red-900 text-xs uppercase">Atmospheric Hazards</h3>
+                            <p class="text-xs text-red-800 leading-relaxed italic">Monitor at 4-foot increments (O2, LEL, toxics, CO, H2S) before training begins.</p>
+                            <textarea id="trAtmosNotes" oninput="saveData()" placeholder="Atmospheric readings / Gas monitor findings..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                            <h3 class="font-bold text-slate-800 text-xs uppercase">Surface Encumbrances & Utilities</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">Determine location of sewer, phone, fuel, electric, water. Render safe. Remove/support surface objects.</p>
+                            <textarea id="trUtilityNotes" rows="1" oninput="saveData()" placeholder="Utility locations and isolations..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none pt-1"></textarea>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                            <h3 class="font-bold text-slate-800 text-xs uppercase">Spoil & Edge Protection</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">Spoil cleared 2ft from lip, max 3ft high (unless >8ft away). Edge protection (e.g. 2x8, 2x10, 2x12, plywood) applied.</p>
+                            <textarea id="trSpoilNotes" rows="1" oninput="saveData()" placeholder="Edge protection and spoil management plan..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none pt-1"></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Checklists -->
+                <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
+                    <!-- 2. Procedures -->
+                    <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
+                        <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
+                            <i data-lucide="clipboard-check" class="w-4 h-4 text-sky-600"></i> 2. Safety Procedures & Controls
+                        </h2>
+                        <div id="tr-procedures-container" class="space-y-2">
+                            <!-- JS inject -->
+                        </div>
+                    </section>
+
+                    <!-- 3. PPE -->
+                    <section class="space-y-4 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
+                        <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
+                            <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i> 3. Discipline PPE & Equipment
+                        </h2>
+                        <div id="tr-ppe-container" class="space-y-2">
+                            <!-- JS inject -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+
         </div>
 
         <footer class="bg-slate-50 p-4 text-center text-[10px] text-slate-400 border-t border-slate-100 no-print">
@@ -777,6 +859,20 @@
             { id: 'csMechanicalDevice', label: 'Mechanical Device: Winch or retrieval system utilized for manual retrieval efficiency.' }
         ];
 
+        const trProcedureItems = [
+            { id: 'trProtectiveSys', label: 'Protective Systems: Support systems designed from manufacturer data or approved by a registered professional engineer.' },
+            { id: 'trLadders', label: 'Ladders: Placed within 25ft of travel, extending 3ft above lip, and secured to bridges.' },
+            { id: 'trFallProtect', label: 'Fall Protection/Monitor: Fall protection systems utilized OR designated safety monitor established for fall hazards.' },
+            { id: 'trPublicProtect', label: 'Public Protection: Guardrails/barricades provided to keep public/traffic out. Unattended trenches secured.' },
+            { id: 'trJumping', label: 'Prohibited Actions: Jumping over trenches or tossing equipment across trenches is strictly prohibited.' }
+        ];
+
+        const trPpeItems = [
+            { id: 'trBasePpe', label: 'Standard PPE: Hard hat, gloves, safety boots, and eye protection donned by all personnel.' },
+            { id: 'trHarness', label: 'Fall Restraint/Retrieval: Personnel installing shoring in unpressurized systems wear belts/harnesses with retrieval lines.' },
+            { id: 'trLineTender', label: 'Line Tenders: Retrieval lines attached to personnel are managed over ladder rungs by a line tender.' }
+        ];
+
         let currentInteraction = 'map';
 
         function setInteraction(mode) {
@@ -879,6 +975,17 @@
             const csPpeCont = document.getElementById('cs-ppe-container');
             csPpeItems.forEach(item => {
                 csPpeCont.innerHTML += createCheckbox(item.id, item.label);
+            });
+
+            // Render Trench Rescue Add-On Checklists
+            const trProcCont = document.getElementById('tr-procedures-container');
+            trProcedureItems.forEach(item => {
+                trProcCont.innerHTML += createCheckbox(item.id, item.label);
+            });
+
+            const trPpeCont = document.getElementById('tr-ppe-container');
+            trPpeItems.forEach(item => {
+                trPpeCont.innerHTML += createCheckbox(item.id, item.label);
             });
 
             // Setup textarea auto-resize listener
@@ -1272,23 +1379,21 @@
             const grid = document.getElementById('assistants-grid');
             
             const wrapper = document.createElement('div');
-            wrapper.className = "flex items-start gap-1 relative group";
+            wrapper.className = "flex items-center gap-1 relative group";
             
-            const input = document.createElement('textarea');
-            input.rows = 1;
-            input.className = "assistant-input flex-1 border-b border-slate-200 p-1.5 focus:border-sky-800 outline-none transition-colors text-sm bg-slate-50/30 resize-none overflow-hidden";
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = "assistant-input flex-1 border-b-2 border-slate-100 p-2 focus:border-sky-600 outline-none transition-colors text-sm bg-transparent";
             input.placeholder = 'Instructor Name';
             input.value = value;
             input.oninput = function() {
-                this.style.height = 'auto';
-                this.style.height = this.scrollHeight + 'px';
                 saveData();
             };
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = "no-print opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-red-500 transition-opacity rounded focus:opacity-100 outline-none";
-            removeBtn.innerHTML = '<i data-lucide="x" class="w-3.5 h-3.5"></i>';
+            removeBtn.innerHTML = '<i data-lucide="x" class="w-4 h-4"></i>';
             removeBtn.onclick = function() {
                 wrapper.remove();
                 saveData();
@@ -1301,12 +1406,6 @@
             wrapper.appendChild(input);
             wrapper.appendChild(removeBtn);
             grid.appendChild(wrapper);
-
-            // Initial resize 
-            setTimeout(() => {
-                input.style.height = 'auto';
-                input.style.height = input.scrollHeight + 'px';
-            }, 10);
 
             if (window.lucide) {
                 lucide.createIcons({ nameAttr: 'data-lucide', root: wrapper });
@@ -1401,6 +1500,15 @@
                 conSpaceSection.classList.remove('hidden');
             } else if (conSpaceSection) {
                 conSpaceSection.classList.add('hidden');
+            }
+
+            const trenchRescueCheckbox = document.getElementById('addonTrench');
+            const trenchRescueSection = document.getElementById('trenchRescueSection');
+            
+            if(trenchRescueCheckbox && trenchRescueCheckbox.checked) {
+                trenchRescueSection.classList.remove('hidden');
+            } else if (trenchRescueSection) {
+                trenchRescueSection.classList.add('hidden');
             }
             
             // Re-render icons for newly visible elements if necessary
