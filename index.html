@@ -331,59 +331,6 @@
                 </section>
             </div>
 
-            <section class="space-y-6 border border-slate-100 rounded-xl p-6 bg-white shadow-sm">
-                <h2 class="text-sm font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
-                    <i data-lucide="check-square" class="w-5 h-5 text-sky-600"></i> 6. Post-Training & Sign-Off
-                </h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6">
-                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between group transition-all hover:border-sky-200">
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-slate-800 block uppercase">Accountability</span>
-                            <span class="text-[10px] text-slate-500 italic">Final PAR required at conclusion.</span>
-                        </div>
-                        <input type="checkbox" id="parCompleted" onchange="saveData()" class="w-6 h-6 rounded border-slate-300 accent-sky-700 cursor-pointer">
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between group transition-all hover:border-sky-200">
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-slate-800 block uppercase">Decon & Gear</span>
-                            <span class="text-[10px] text-slate-500 italic">Gear decontaminated and stowed.</span>
-                        </div>
-                        <input type="checkbox" id="deconCompleted" onchange="saveData()" class="w-6 h-6 rounded border-slate-300 accent-sky-700 cursor-pointer">
-                    </div>
-                </div>
-
-                <div class="space-y-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold uppercase text-slate-500">Gear Issues</label>
-                        <textarea id="gearIssues" oninput="saveData()" rows="4" placeholder="List equipment issues, lost or damaged gear..." class="w-full p-3 border-2 border-slate-100 rounded-lg focus:border-sky-600 outline-none text-sm bg-slate-50/30 resize-none"></textarea>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold uppercase text-slate-500">Near Misses / Injuries</label>
-                        <textarea id="nearMisses" oninput="saveData()" rows="4" placeholder="Document any incidents or close calls..." class="w-full p-3 border-2 border-slate-100 rounded-lg focus:border-sky-600 outline-none text-sm bg-slate-50/30 resize-none"></textarea>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold uppercase text-slate-500">Safety Considerations for Future Training</label>
-                        <textarea id="futureConsiderations" oninput="saveData()" rows="4" placeholder="Recommendations for improvement..." class="w-full p-3 border-2 border-slate-100 rounded-lg focus:border-sky-600 outline-none text-sm bg-slate-50/30 resize-none"></textarea>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-8 pt-4 border-t border-slate-100">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold uppercase text-slate-500">Lead Instructor Signature</label>
-                        <textarea id="leadSignature" rows="1" oninput="saveData()" placeholder="Digital Signature Name" class="w-full p-2 border-b-2 border-slate-100 focus:border-sky-600 outline-none italic font-bold"></textarea>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold uppercase text-slate-500">Safety Officer Signature</label>
-                        <textarea id="soSignature" rows="1" oninput="saveData()" placeholder="Digital Signature Name" class="w-full p-2 border-b-2 border-slate-100 focus:border-sky-600 outline-none italic font-bold"></textarea>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold uppercase text-slate-500">Submission Date</label>
-                        <input type="date" id="sigDate" oninput="saveData()" class="w-full p-2 border-b-2 border-slate-100 focus:border-sky-600 outline-none">
-                    </div>
-                </div>
-            </section>
-
             <!-- LIVE FIRE ADD-ON SECTION -->
             <div id="liveFireSection" class="hidden space-y-8 mt-12 pt-8 border-t-4 border-orange-500 print:break-before-page print:border-t-0 print:mt-0 print:pt-0">
                 <div class="flex items-center gap-3 mb-2">
@@ -827,6 +774,59 @@
                     </section>
                 </div>
             </div>
+
+            <section class="space-y-6 border border-slate-100 rounded-xl p-6 bg-white shadow-sm print:break-before-page print:mt-8">
+                <h2 class="text-sm font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest border-b pb-3 border-slate-50">
+                    <i data-lucide="check-square" class="w-5 h-5 text-sky-600"></i> 6. Post-Training & Sign-Off
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6">
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between group transition-all hover:border-sky-200">
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-slate-800 block uppercase">Accountability</span>
+                            <span class="text-[10px] text-slate-500 italic">Final PAR required at conclusion.</span>
+                        </div>
+                        <input type="checkbox" id="parCompleted" onchange="saveData()" class="w-6 h-6 rounded border-slate-300 accent-sky-700 cursor-pointer">
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between group transition-all hover:border-sky-200">
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-slate-800 block uppercase">Decon & Gear</span>
+                            <span class="text-[10px] text-slate-500 italic">Gear decontaminated and stowed.</span>
+                        </div>
+                        <input type="checkbox" id="deconCompleted" onchange="saveData()" class="w-6 h-6 rounded border-slate-300 accent-sky-700 cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold uppercase text-slate-500">Gear Issues</label>
+                        <textarea id="gearIssues" oninput="saveData()" rows="4" placeholder="List equipment issues, lost or damaged gear..." class="w-full p-3 border-2 border-slate-100 rounded-lg focus:border-sky-600 outline-none text-sm bg-slate-50/30 resize-none"></textarea>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold uppercase text-slate-500">Near Misses / Injuries</label>
+                        <textarea id="nearMisses" oninput="saveData()" rows="4" placeholder="Document any incidents or close calls..." class="w-full p-3 border-2 border-slate-100 rounded-lg focus:border-sky-600 outline-none text-sm bg-slate-50/30 resize-none"></textarea>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold uppercase text-slate-500">Safety Considerations for Future Training</label>
+                        <textarea id="futureConsiderations" oninput="saveData()" rows="4" placeholder="Recommendations for improvement..." class="w-full p-3 border-2 border-slate-100 rounded-lg focus:border-sky-600 outline-none text-sm bg-slate-50/30 resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-8 pt-4 border-t border-slate-100">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold uppercase text-slate-500">Lead Instructor Signature</label>
+                        <textarea id="leadSignature" rows="1" oninput="saveData()" placeholder="Digital Signature Name" class="w-full p-2 border-b-2 border-slate-100 focus:border-sky-600 outline-none italic font-bold"></textarea>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold uppercase text-slate-500">Safety Officer Signature</label>
+                        <textarea id="soSignature" rows="1" oninput="saveData()" placeholder="Digital Signature Name" class="w-full p-2 border-b-2 border-slate-100 focus:border-sky-600 outline-none italic font-bold"></textarea>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold uppercase text-slate-500">Submission Date</label>
+                        <input type="date" id="sigDate" oninput="saveData()" class="w-full p-2 border-b-2 border-slate-100 focus:border-sky-600 outline-none">
+                    </div>
+                </div>
+            </section>
 
         </div>
 
