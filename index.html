@@ -537,25 +537,58 @@
                             <h3 class="font-bold text-red-900 text-xs uppercase">Weather Conditions</h3>
                             <p class="text-xs text-red-800 leading-relaxed italic">Assess for inclement weather, electrical storms, or high winds.</p>
                             <p class="text-[10px] text-red-700 font-bold uppercase">No-Go: Winds exceeding 80 km/hr.</p>
-                            <div class="flex items-center gap-2 pt-1">
-                                <label class="text-[10px] font-bold text-slate-500 uppercase">Wind Reading:</label>
-                                <textarea id="rrWindReading" rows="1" oninput="saveData()" placeholder="e.g. 25 km/hr" class="flex-1 border-b border-red-200 bg-transparent text-xs focus:outline-none"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-red-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="rrWeather_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="rrWeather_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
                             </div>
                         </div>
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Utility Hazards</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Identify and isolate overhead Hydro lines or Natural Gas utilities in the operational drop zone.</p>
-                            <textarea id="rrUtilityNotes" rows="1" oninput="saveData()" placeholder="Utility identification/isolation notes..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-slate-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="rrUtility_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="rrUtility_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
                         </div>
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Height & Edge Hazards</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Identify fall risks (< 3m and > 3m). Assess for sharp edges, friction points, access challenges, and erosion.</p>
-                            <textarea id="rrEdgeAssessment" rows="1" oninput="saveData()" placeholder="Sharp edge/erosion findings..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none pt-1"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-slate-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="rrEdge_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="rrEdge_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
                         </div>
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Line of Sight & Comms</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Identify areas where participants are out of sight or where communication challenges exist.</p>
-                            <textarea id="rrCommChallenges" rows="1" oninput="saveData()" placeholder="Blind spot / Radio dead-zone notes..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none pt-1"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-slate-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="rrComm_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="rrComm_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -590,21 +623,90 @@
                         <i data-lucide="octagon-alert" class="w-5 h-5 text-red-600"></i> 1. SITE-SPECIFIC HAZARDS & "NO-GO" TRIGGERS
                     </h2>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 print:grid-cols-3 gap-6">
                         <div class="p-4 bg-red-50 rounded-lg border border-red-100 space-y-3">
                             <h3 class="font-bold text-red-900 text-xs uppercase">Atmospheric Hazards</h3>
                             <p class="text-xs text-red-800 leading-relaxed italic">Prohibited until tested for flammability, toxicity, asphyxiation, and oxygen deficiency.</p>
-                            <textarea id="csAtmosNotes" oninput="saveData()" placeholder="Gas monitor readings / findings..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-red-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csAtmos_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csAtmos_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
                         </div>
                         <div class="p-4 bg-red-50 rounded-lg border border-red-100 space-y-3">
                             <h3 class="font-bold text-red-900 text-xs uppercase">Stored Energy (LOTO)</h3>
                             <p class="text-xs text-red-800 leading-relaxed italic">Identify all mechanical, electrical, hydraulic, pneumatic sources. LOTO required before entry.</p>
-                            <textarea id="csLotoNotes" oninput="saveData()" placeholder="Isolation points identified..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-red-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csLoto_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csLoto_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
                         </div>
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Physical & Human</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Assess entrapment, engulfment, sharp edges, and human factors (panic, exhaustion).</p>
-                            <textarea id="csFactorNotes" oninput="saveData()" placeholder="Visibility, noise, or psychological factors..." class="w-full p-2 text-[10px] border border-slate-300 rounded bg-white outline-none focus:border-sky-600 resize-none" rows="2"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-slate-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csFactor_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csFactor_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
+                            <h3 class="font-bold text-slate-800 text-xs uppercase">Utility Hazards</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">Identify and isolate overhead Hydro lines or Natural Gas utilities in the operational drop zone.</p>
+                            <div class="mt-2 space-y-1.5 border-t border-slate-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csUtility_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csUtility_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                            <h3 class="font-bold text-slate-800 text-xs uppercase">Height & Edge Hazards</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">Identify fall risks (< 3m and > 3m). Assess for sharp edges, friction points, access challenges, and erosion.</p>
+                            <div class="mt-2 space-y-1.5 border-t border-slate-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csEdge_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csEdge_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                            <h3 class="font-bold text-slate-800 text-xs uppercase">Line of Sight & Comms</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">Identify areas where participants are out of sight or where communication challenges exist.</p>
+                            <div class="mt-2 space-y-1.5 border-t border-slate-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csComm_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="csComm_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -654,22 +756,58 @@
                         <div class="p-4 bg-red-50 rounded-lg border border-red-100 space-y-3">
                             <h3 class="font-bold text-red-900 text-xs uppercase">Soil & Cave-in Assessment</h3>
                             <p class="text-xs text-red-800 leading-relaxed italic">Daily inspection by competent person. Classify soil using recognized techniques. ALL rescue shoring designed for Type C.</p>
-                            <textarea id="trSoilNotes" oninput="saveData()" placeholder="Soil classification & cave-in hazard notes..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-red-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="trSoil_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="trSoil_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
                         </div>
                         <div class="p-4 bg-red-50 rounded-lg border border-red-100 space-y-3">
                             <h3 class="font-bold text-red-900 text-xs uppercase">Atmospheric Hazards</h3>
                             <p class="text-xs text-red-800 leading-relaxed italic">Monitor at 4-foot increments (O2, LEL, toxics, CO, H2S) before training begins.</p>
-                            <textarea id="trAtmosNotes" oninput="saveData()" placeholder="Atmospheric readings / Gas monitor findings..." class="w-full p-2 text-[10px] border border-red-200 rounded bg-white outline-none focus:border-red-500 resize-none" rows="2"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-red-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="trAtmos_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="trAtmos_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
                         </div>
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Surface Encumbrances & Utilities</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Determine location of sewer, phone, fuel, electric, water. Render safe. Remove/support surface objects.</p>
-                            <textarea id="trUtilityNotes" rows="1" oninput="saveData()" placeholder="Utility locations and isolations..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none pt-1"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-slate-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="trUtility_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="trUtility_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
                         </div>
                         <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                             <h3 class="font-bold text-slate-800 text-xs uppercase">Spoil & Edge Protection</h3>
                             <p class="text-xs text-slate-600 leading-relaxed">Spoil cleared 2ft from lip, max 3ft high (unless >8ft away). Edge protection (e.g. 2x8, 2x10, 2x12, plywood) applied.</p>
-                            <textarea id="trSpoilNotes" rows="1" oninput="saveData()" placeholder="Edge protection and spoil management plan..." class="w-full border-b border-slate-300 bg-transparent text-xs outline-none pt-1"></textarea>
+                            <div class="mt-2 space-y-1.5 border-t border-slate-200 pt-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="trSpoil_mitigated" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">Hazard identified & mitigated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" id="trSpoil_none" onchange="saveData()" class="w-4 h-4 rounded border-slate-300 accent-sky-700">
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase group-hover:text-sky-700 transition-colors">No hazard present</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -813,7 +951,7 @@
         const rrPpeItems = [
             { id: 'rrHarnessClass3', label: 'Class III Harness: 5-point rescue harness properly donned, inspected, and adjusted.' },
             { id: 'rrTechHelmet', label: 'Technical Helmet: Rescue helmet with chin strap secured.' },
-            { id: 'rrWorkGloves', label: 'Gloves: Rope rescue or auto-extrication work gloves donned.' }
+            { id: 'rrWorkGloves', label: 'Gloves: Rope rescue gloves donned.' }
         ];
 
         const csProcedureItems = [
